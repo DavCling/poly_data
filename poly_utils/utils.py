@@ -67,8 +67,8 @@ def update_missing_tokens(missing_token_ids: List[str], csv_filename: str = "mis
     
     # Same headers as main markets.csv
     headers = [
-        'createdAt', 'id', 'question', 'answer1', 'answer2', 'neg_risk', 
-        'market_slug', 'token1', 'token2', 'condition_id', 'volume', 'ticker', 'closedTime'
+        'createdAt', 'id', 'question', 'answer1', 'answer2', 'neg_risk',
+        'market_slug', 'token1', 'token2', 'condition_id', 'volume', 'ticker', 'closedTime', 'category'
     ]
     
     # Check if file exists to determine if we need headers
@@ -174,7 +174,8 @@ def update_missing_tokens(missing_token_ids: List[str], csv_filename: str = "mis
                     market.get('conditionId', ''),
                     market.get('volume', ''),
                     ticker,
-                    market.get('closedTime', '')
+                    market.get('closedTime', ''),
+                    market.get('category', '')
                 ]
                 
                 new_markets.append(row)

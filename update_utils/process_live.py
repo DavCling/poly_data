@@ -133,12 +133,23 @@ def process_live():
         "makerAssetId": pl.Utf8,
     }
 
-    df = pl.scan_csv("goldsky/orderFilled.csv", schema_overrides=schema_overrides).collect(streaming=True)
+    # Convert last_processed timestamp to epoch seconds for pre-filtering
+    last_ts_epoch = int(last_processed['timestamp'].timestamp())
+
+    # Pre-filter during scan to avoid loading the entire 39GB file into memory.
+    # We filter to rows at or after the last processed timestamp (in epoch seconds),
+    # then find the exact resume point in the much smaller filtered set.
+    df = (
+        pl.scan_csv("goldsky/orderFilled.csv", schema_overrides=schema_overrides)
+        .filter(pl.col("timestamp") >= last_ts_epoch)
+        .collect(streaming=True)
+    )
+
     df = df.with_columns(
         pl.from_epoch(pl.col('timestamp'), time_unit='s').alias('timestamp')
     )
 
-    print(f"✓ Loaded {len(df):,} rows")
+    print(f"✓ Loaded {len(df):,} candidate rows (filtered from last processed timestamp)")
 
     df = df.with_row_index()
 
@@ -149,6 +160,7 @@ def process_live():
 
     df_process = df.filter(pl.col('index') > same_timestamp.row(0)[0])
     df_process = df_process.drop('index')
+    del df  # free the filtered candidate set
 
     print(f"⚙️  Processing {len(df_process):,} new rows...")
 

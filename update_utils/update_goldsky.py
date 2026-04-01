@@ -81,16 +81,18 @@ def get_latest_cursor():
                     return last_timestamp - 1, None, None
     except Exception as e:
         print(f"Error reading latest file with tail: {e}")
-        # Fallback to pandas
+        # Fallback: read only the last few lines to get the timestamp
         try:
-            df = pd.read_csv(cache_file)
-            if len(df) > 0 and 'timestamp' in df.columns:
-                last_timestamp = df.iloc[-1]['timestamp']
+            import polars as pl
+            # Use polars scan to read just the last row without loading the full file
+            last_row = pl.scan_csv(cache_file).tail(1).collect()
+            if len(last_row) > 0 and 'timestamp' in last_row.columns:
+                last_timestamp = last_row['timestamp'][0]
                 readable_time = datetime.fromtimestamp(int(last_timestamp), tz=timezone.utc).strftime('%Y-%m-%d %H:%M:%S UTC')
                 print(f'Resuming from CSV (no cursor file): timestamp {last_timestamp} ({readable_time})')
                 return int(last_timestamp) - 1, None, None
         except Exception as e2:
-            print(f"Error reading with pandas: {e2}")
+            print(f"Error reading with polars: {e2}")
     
     # Fallback to beginning of time
     print("Falling back to beginning of time (timestamp 0)")

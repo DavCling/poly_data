@@ -32,8 +32,8 @@ def update_markets(csv_filename: str = "markets.csv", batch_size: int = 500):
     
     # CSV headers for the required columns
     headers = [
-        'createdAt', 'id', 'question', 'answer1', 'answer2', 'neg_risk', 
-        'market_slug', 'token1', 'token2', 'condition_id', 'volume', 'ticker', 'closedTime'
+        'createdAt', 'id', 'question', 'answer1', 'answer2', 'neg_risk',
+        'market_slug', 'token1', 'token2', 'condition_id', 'volume', 'ticker', 'closedTime', 'category'
     ]
     
     # Dynamically set offset based on existing records
@@ -141,7 +141,8 @@ def update_markets(csv_filename: str = "markets.csv", batch_size: int = 500):
                             market.get('conditionId', ''),
                             market.get('volume', ''),
                             ticker,
-                            market.get('closedTime', '')
+                            market.get('closedTime', ''),
+                            market.get('category', '')
                         ]
                         
                         writer.writerow(row)

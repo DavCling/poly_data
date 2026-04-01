@@ -1,6 +1,10 @@
 markets.csv
+markets_backup.csv
 processed/
 goldsky/
+archive.tar.xz
+aug7_oct7_2025_daily_metrics.csv
+october_2025_daily_metrics.csv
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
